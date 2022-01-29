@@ -63,7 +63,7 @@ def circle(x: 'int | float', y: 'int | float', r: 'int | float', color, filled: 
     else:
         gfxdraw.aacircle(surface, int(x), int(y), int(r), color)
 
-def line(x1: 'int | float', y1: 'int | float', x2: 'int | float', y2: 'int | float', color, surface: pygame.Surface = None):
+def line(x1: 'int | float', y1: 'int | float', x2: 'int | float', y2: 'int | float', color, w = 1, surface: pygame.Surface = None):
     ''' 
     Draw an antialiased line 
     
@@ -74,11 +74,53 @@ def line(x1: 'int | float', y1: 'int | float', x2: 'int | float', y2: 'int | flo
     :param color: The color of the line
     :param surface: The surface to draw the line on
     '''
-    s = pygame.Surface((abs(x2 - x1), abs(y2 - y1)))
     
+    w /= 2
+    x_offset = 0
+    if y1 > y2:
+        tmp = x1, y1
+        x1, y1 = x2, y2
+        x2, y2 = tmp
+        # x_offset = x2 - x1
+    
+    slope = (x2 - x1) / (y2 - y1)
+    y0 = 0
+    if x2 < x1:
+        y0 = x1 - x2
+        x_offset = x2 - x1
+
+    
+    size_x = int(abs(x2 - x1) + w * 4)
+    size_y = int(abs(y2 - y1) + w * 4)
+    
+    a1 = np.array([[i for i in range(size_y)] for _ in range(size_x)])
+    b1 = np.array([[i for _ in range(size_y)] for i in range(size_x)])
+
+
+
+    a2 = (a1 + b1 * slope - slope * y0) / (np.power(slope, 2) + 1)
+    b2 = slope * a2 + y0
+
+    distance_map = np.sqrt(np.power(a2 - a1, 2) + np.power(b2 - b1, 2))
     if surface is None:
         surface = pygame.display.get_surface()
-    gfxdraw.aapolygon(surface, ((int(x1), int(y1)), (int(x2), int(y2)), (int(x2), int(y2))), color)
+    surface_width, surface_height = surface.get_size()
+    for i in range(size_x):
+        for j in range(size_y):
+            x = int(x1 + x_offset + i)
+            y = int(y1 + j)
+            if x < surface_width and y < surface_height and x >= 0 and y >= 0:
+                distance = distance_map[i][j]
+                if distance < w:
+                    surface.set_at((x, y), color)
+                elif distance < w + 1:
+                    alpha = -distance + (w + 1)
+                    original_color = surface.get_at((x, y))
+                    surface.set_at((x, y), (
+                        color[0] * alpha + original_color[0] * (1 - alpha), 
+                        color[1] * alpha + original_color[1] * (1 - alpha),
+                        color[2] * alpha + original_color[2] * (1 - alpha)
+                    ))
 
 def polygon(points, color, filled: bool = True, surface: pygame.Surface = None):
     ''' 
@@ -127,11 +169,6 @@ def rounded_rectangle(x: 'float | int', y: 'float | int', width: 'float | int', 
     if surface is None:
         surface = pygame.display.get_surface()
 
-    if radius * 2 > width:
-        radius = width / 2 - 1
-    if radius * 2 > height:
-        radius = height / 2 - 1
-
     s = pygame.Surface((width, height), pygame.SRCALPHA)
     s.fill(color)
     surface.blit(rounded(s, radius), (x, y))
@@ -163,6 +200,11 @@ def fill(color, surface: pygame.Surface = None):
 
 def rounded(surface: pygame.Surface, radius, rounded_corners: 'list[bool]' = [True, True, True, True]):
     rounded_surface = surface.copy()
+    surface_width, surface_height = rounded_surface.get_size()
+    if radius * 2 > surface_width:
+        radius = int(surface_width / 2)
+    if radius * 2 > surface_height:
+        radius = int(surface_height / 2)
 
     a = np.array([[i for i in range(radius)] for _ in range(radius)])
     b = np.array([[i for _ in range(radius)] for i in range(radius)])
@@ -217,7 +259,7 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 
-class config():
+class win_config():
     max_fps = 0
     min_delta = 0
     background_color = WHITE
@@ -227,16 +269,16 @@ class config():
     @staticmethod
     def set_max_fps(value):
         ''' Change the FPS limit. Exists to save resources '''
-        config.max_fps = value
-        config.min_delta = 1 / config.max_fps
-        config.just_updated = True
+        win_config.max_fps = value
+        win_config.min_delta = 1 / win_config.max_fps
+        win_config.just_updated = True
     
     @staticmethod
     def set_fps_update_interval(value):
         ''' Change the FPS update interval. Makes FPS displays more readable '''
-        config.fps_update_interval = value
+        win_config.fps_update_interval = value
 
-config.set_max_fps(65)
+win_config.set_max_fps(65)
 
 def go(init_func = init, events_fuc = events, tick_func = tick, draw_func = draw, width = 1000, height = 600, name = 'New Project'):
     ''' Start the game loop '''
@@ -251,9 +293,9 @@ def go(init_func = init, events_fuc = events, tick_func = tick, draw_func = draw
 
     current_time = time.time()
     time_last_frame = current_time
-    delta = config.min_delta
+    delta = win_config.min_delta
     delta_list = []
-    fps_display_update_time = config.fps_update_interval
+    fps_display_update_time = win_config.fps_update_interval
 
     init_func()
     running = True
@@ -268,7 +310,7 @@ def go(init_func = init, events_fuc = events, tick_func = tick, draw_func = draw
 
         tick_func(delta)
 
-        screen.fill(config.background_color)
+        screen.fill(win_config.background_color)
 
         draw_func()
         
@@ -276,8 +318,8 @@ def go(init_func = init, events_fuc = events, tick_func = tick, draw_func = draw
 
         current_time = time.time()
         delta = current_time - time_last_frame
-        if delta < config.min_delta:
-            time.sleep(config.min_delta - delta)
+        if delta < win_config.min_delta:
+            time.sleep(win_config.min_delta - delta)
             current_time = time.time()
             delta = current_time - time_last_frame
         time_last_frame = current_time
@@ -291,8 +333,8 @@ def go(init_func = init, events_fuc = events, tick_func = tick, draw_func = draw
 
         if fps_display_update_time < 0:
             print("Fps: %i (Min: %i, Max: %i)" % (len(delta_list)/sum(delta_list), 1/max(delta_list), 1/min(delta_list)))
-            config.curr_fps = 1 / delta
+            win_config.curr_fps = 1 / delta
             delta_list = []
-            fps_display_update_time = config.fps_update_interval
+            fps_display_update_time = win_config.fps_update_interval
 
     pygame.quit()

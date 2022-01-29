@@ -6,10 +6,10 @@ import time
 def init():
     global node_pos, node_vel, links, size_x, size_y, link_length, stiffness, damping, moved_node, node_size, tolerance, w1
 
-    w1 = Window(np.array([10, 20]), np.array([500, 300]))
+    w1 = Window(events, np.array([10, 20]), np.array([500, 300]))
     fill((0, 0, 0), w1.surface)
 
-    config.set_max_fps(9999)
+    win_config.set_max_fps(9999)
 
     moved_node = (-1, -1)
     link_length = 50
