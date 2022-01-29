@@ -1,5 +1,6 @@
 import numpy as np
 import pygame
+from de.scripts.de_lib import *
 
 class Window(object):
     all: 'list[Window]' = []
@@ -13,6 +14,7 @@ class Window(object):
         self.pos: np.ndarray = pos
         self.size: np.ndarray = size
         self.surface: pygame.Surface = pygame.Surface(self.size, pygame.SRCALPHA)
+        self.header_size = config.configs['Window']['Header']['Default_Size']
     
     def set_size(self, size: np.ndarray):
         self.size = size

@@ -11,5 +11,11 @@ def child_files(d):
 def children(d):
     return [name for name in os.listdir(d)]
 
+def back(d):
+    return os.path.normpath(d + os.sep + os.pardir)
+
 def working_dir():
     return os.path.dirname(os.path.realpath(__file__))
+
+def script_root():
+        return back(os.path.dirname(os.path.realpath(__file__)))
