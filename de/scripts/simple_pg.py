@@ -82,7 +82,8 @@ def line(x1: 'int | float', y1: 'int | float', x2: 'int | float', y2: 'int | flo
         x1, y1 = x2, y2
         x2, y2 = tmp
         # x_offset = x2 - x1
-    
+    if y2 == y1:
+        y1 += 10e-10
     slope = (x2 - x1) / (y2 - y1)
     y0 = 0
     if x2 < x1:
@@ -173,7 +174,7 @@ def rounded_rectangle(x: 'float | int', y: 'float | int', width: 'float | int', 
     s.fill(color)
     surface.blit(rounded(s, radius), (x, y))
 
-def image(x, y, image, surface: pygame.Surface = None):
+def image(x, y, img, surface: pygame.Surface = None):
     '''
     Draw an image on the screen
 
@@ -186,7 +187,7 @@ def image(x, y, image, surface: pygame.Surface = None):
     if surface is None:
         surface = pygame.display.get_surface()
     
-    surface.blit(image, (x, y))
+    surface.blit(img, (x, y))
 
 def fill(color, surface: pygame.Surface = None):
     ''' 

@@ -1,7 +1,5 @@
-#!/usr/bin/env python3
 from de.scripts.file_utils import *
 
-# Exported Class
 class DotFiles(object):
     def __init__(self, starting_path):
         self.path = starting_path
