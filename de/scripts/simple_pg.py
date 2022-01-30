@@ -74,6 +74,8 @@ def line(x1: 'int | float', y1: 'int | float', x2: 'int | float', y2: 'int | flo
     :param color: The color of the line
     :param surface: The surface to draw the line on
     '''
+    if surface is None:
+        surface = pygame.display.get_surface()
     
     w /= 2
     x_offset = 0
@@ -103,8 +105,6 @@ def line(x1: 'int | float', y1: 'int | float', x2: 'int | float', y2: 'int | flo
     b2 = slope * a2 + y0
 
     distance_map = np.sqrt(np.power(a2 - a1, 2) + np.power(b2 - b1, 2))
-    if surface is None:
-        surface = pygame.display.get_surface()
     surface_width, surface_height = surface.get_size()
     for i in range(size_x):
         for j in range(size_y):
@@ -189,6 +189,36 @@ def image(x, y, img, surface: pygame.Surface = None):
     
     surface.blit(img, (x, y))
 
+def text(x: int, y: int, text_str: str, color, font: str = 'Helvetica', font_size: int = 30, bold: bool = False, italic: bool = False, alignment_x: str = 'center', alignment_y: str = 'center', surface: pygame.Surface = None):
+    '''
+    Draw text on the screen
+
+    :param x: The x coordinate of the text origin
+    :param y: The y coordinate of the text origin
+    :param text: The text to draw
+    :param font: The font to draw the text in
+    :param font_size: The font size of the text
+    :param color: The color to draw the text in
+    :param alignment_x: The horizontal alignment of the text ('left', 'center' or 'right')
+    :param alignment_y: The vertical alignment of the text ('top', 'center' or 'bottom')
+    :param surface: The surface to draw the text on
+    '''
+    if surface is None:
+        surface = pygame.display.get_surface()
+
+    font_obj = pygame.font.SysFont(font, font_size, bold, italic)
+    text_surface = font_obj.render(text_str, True, color)
+    if alignment_x == 'center':
+        x = x - text_surface.get_width() * 0.5
+    elif alignment_x == 'right':
+        x = x - text_surface.get_width()
+    if alignment_y == 'center':
+        y = y - text_surface.get_height() * 0.5
+    elif alignment_y == 'bottom':
+        y = y - text_surface.get_height()
+
+    surface.blit(text_surface, (x, y))
+
 def fill(color, surface: pygame.Surface = None):
     ''' 
     Fill the canvas with the given color
@@ -241,6 +271,20 @@ def rounded(surface: pygame.Surface, radius, rounded_corners: 'list[bool]' = [Tr
                     rounded_surface.set_at((x, y), color)
     return rounded_surface
 
+def set_at(x, y, color, surface: pygame.Surface = None):
+    '''
+    Set a pixel on the surface to the given color
+
+    :param x: x coordinate of the pixel
+    :param y: y coordinate of the pixel
+    :param color: color of the pixel
+    '''
+
+    if surface is None:
+        surface = pygame.display.get_surface()
+    
+    surface.set_at((x, y), color)
+
 def init():
     pass
 
@@ -285,6 +329,8 @@ def go(init_func = init, events_fuc = events, tick_func = tick, draw_func = draw
     ''' Start the game loop '''
     pygame.init()
     pygame.mixer.init()  ## For sound
+    pygame.font.init()
+
     screen = None
     if width == 0:
         screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)

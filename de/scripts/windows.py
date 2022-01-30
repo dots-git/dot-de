@@ -25,6 +25,10 @@ class Window(object):
         self.size = size
         self.surface = pygame.Surface(self.size, pygame.SRCALPHA)
     
+    def mouse_pos(self):
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        return (mouse_x - self.pos[0], mouse_y - self.pos[1])
+
     # A bunch of functions to make drawing on the window easier, most just use the functions from simple_pg
     def size(self):
         ''' 
@@ -117,6 +121,23 @@ class Window(object):
 
         '''
         image(x, y, img, self.surface)
+
+    def text(self, x: int, y: int, text_str: str, color: pygame.draw, font: str = 'Helvetica', font_size: int = 30, bold: bool = False, italic: bool = False, alignment_x: str = 'center', alignment_y: str = 'center'):
+        '''
+        Draw text on the screen
+
+        :param x: The x coordinate of the text origin
+        :param y: The y coordinate of the text origin
+        :param text: The text to draw
+        :param font: The font to draw the text in
+        :param font_size: The font size of the text
+        :param color: The color to draw the text in
+        :param alignment_x: The horizontal alignment of the text ('left', 'center' or 'right')
+        :param alignment_y: The vertical alignment of the text ('top', 'center' or 'bottom')
+        :param surface: The surface to draw the text on
+        '''
+        text(x, y, text_str, color, font, font_size, bold, italic, alignment_x, alignment_y, self.surface)
+        
 
     def fill(self, color):
         ''' 

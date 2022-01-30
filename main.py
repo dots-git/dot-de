@@ -1,3 +1,4 @@
+from importlib import import_module
 import pygame
 import time
 import numpy as np
@@ -31,9 +32,6 @@ class win_config():
         ''' Change the FPS update interval. Makes FPS displays more readable '''
         win_config.fps_update_interval = value
 
-def open_file(filename):
-    exec(open(filename).read())
-
 win_config.set_max_fps(65)
 
 ''' Start the game loop '''
@@ -50,10 +48,9 @@ delta_list = []
 fps_display_update_time = win_config.fps_update_interval
 
 config.load()
+config.run_script('/demos/tetris_launcher.py')
+config.run_script('/demos/fabric_sim.py')
 
-files_to_run = []
-files_to_run.append('./demos/fabric_sim.py')
-files_to_run.append('./demos/tetris_ui.py')
 
 moved_window = None
 active_window = None
@@ -63,6 +60,7 @@ running = True
 while running:
     for event in pygame.event.get():        # gets all the events which have occured till now and keeps tab of them. 
         # listening for the the X button at the top
+        clicked_header = False
         if event.type == pygame.QUIT:
             running = False
         is_pressed = pygame.key.get_pressed()
@@ -90,6 +88,7 @@ while running:
                         moving_offset[0] = Window.all[j].pos[0] - mouse_pos[0]
                         moving_offset[1] = Window.all[j].pos[1] - mouse_pos[1]
                         found = True
+                        clicked_header = True
                     if Window.all[j].pos[1] - header_height < mouse_pos[1] < Window.all[j].pos[1] + Window.all[j].size[1]:
                         print("Active window set")
                         active_window = Window.all[j]
@@ -104,9 +103,12 @@ while running:
             if not (moved_window is None):
                 moved_window = None
         for w in Window.all:
-            if w == active_window:
+            if w == active_window and not clicked_header:
                 w.events(event)
-        
+        clicked_header = False
+    
+    if active_window is not None and not active_window in Window.all:
+        active_window = None
 
     for w in Window.all:
         w.tick(delta)
@@ -115,9 +117,13 @@ while running:
         moved_window.pos = np.array([mouse_pos[0],mouse_pos[1]]) + moving_offset
     
     # Run requested files
-    for f in files_to_run:
+    for f in config.files_to_run:
         exec(open(f).read())
-    files_to_run = []
+    config.files_to_run = []
+
+    for w in Window.all:
+        if w.pos[1] < w.header_height:
+            w.pos[1] = w.header_height
 
     screen.fill(win_config.background_color)
 
@@ -142,7 +148,6 @@ while running:
         rounded_rectangle(win.pos[0] - offset, win.pos[1] - header_height, win.size[0] + offset * 2, header_height + overlap, (30, 30, 50), radius)
         circle(win.pos[0] + win.size[0] - button_size * 2 - 2, win.pos[1] - 2*button_size, button_size, (225, 70, 70))
         image(win.pos[0], win.pos[1], rounded_surface)
-    
     pygame.display.flip()   
 
     current_time = time.time()
