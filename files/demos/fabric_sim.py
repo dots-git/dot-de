@@ -1,5 +1,5 @@
-from de.scripts.windows import *
-from de.scripts.simple_pg import *
+from de.windows import *
+from de.simple_pg import *
 import numpy as np
 
 class FabricSimWindow(Window):

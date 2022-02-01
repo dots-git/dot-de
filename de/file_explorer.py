@@ -1,4 +1,4 @@
-from de.scripts.file_utils import *
+from de.file_utils import *
 
 class DotFiles(object):
     def __init__(self, starting_path):

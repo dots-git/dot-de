@@ -189,7 +189,7 @@ def image(x, y, img, surface: pygame.Surface = None):
     
     surface.blit(img, (x, y))
 
-def text(x: int, y: int, text_str: str, color, font: str = 'Helvetica', font_size: int = 30, bold: bool = False, italic: bool = False, alignment_x: str = 'center', alignment_y: str = 'center', surface: pygame.Surface = None):
+def text(x: int, y: int, text_str: str, color, typeface: str = 'Linux Biolinum G', font_size: int = 30, bold: bool = False, italic: bool = False, alignment_x: str = 'center', alignment_y: str = 'center', surface: pygame.Surface = None):
     '''
     Draw text on the screen
 
@@ -205,8 +205,8 @@ def text(x: int, y: int, text_str: str, color, font: str = 'Helvetica', font_siz
     '''
     if surface is None:
         surface = pygame.display.get_surface()
-
-    font_obj = pygame.font.SysFont(font, font_size, bold, italic)
+    
+    font_obj = pygame.font.SysFont(typeface, font_size, bold, italic)
     text_surface = font_obj.render(text_str, True, color)
     if alignment_x == 'center':
         x = x - text_surface.get_width() * 0.5

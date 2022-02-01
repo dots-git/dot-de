@@ -17,8 +17,8 @@ def back(d):
 def working_dir():
     return os.path.dirname(os.path.realpath(__file__))
 
-def script_root():
-        return back(working_dir())
-
 def files_root():
-    return back(back(working_dir())) + '/files'
+    return back(working_dir()) + os.sep + 'files'
+
+def local_file_location(f: str) -> str:
+    return back(f).replace(files_root(), '')

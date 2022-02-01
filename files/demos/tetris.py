@@ -64,6 +64,7 @@ class tetr():
         L: (255, 125, 0)
     }
 
+print("Defining Game class")
 class Game():
     def __init__(self, scale: Vector2):
         self.screen_array = [[0 for _ in range(int(scale.y + 4))] for _ in range(int(scale.x))] 
@@ -217,26 +218,3 @@ input_dict = {
     'rotate_cw': False
 }
 
-game = Game(Vector2(10, 20))
-
-# input_thread = threading.Thread(target = take_inputs, args=(input_dict, ))
-# input_thread.start()
-# for i in range(3500):
-#     print('\r' + str(game))
-#     sleep(1)
-#     if input_dict['right']:
-#         game.move_right()
-#         input_dict['right'] = False
-#     if input_dict['left']:
-#         game.move_left()
-#         input_dict['left'] = False
-#     if input_dict['rotate_ccw']:
-#         game.rotate_ccw()
-#         input_dict['rotate_ccw'] = False
-#     if input_dict['rotate_cw']:
-#         game.rotate_cw()
-#         input_dict['rotate_cw'] = False
-#     game.move_down()
-#     if input_dict['cancel']:
-#         break
-print('press enter to continue')

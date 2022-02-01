@@ -1,6 +1,6 @@
 from tkinter import N
-from de.scripts.windows import *
-from de.scripts.de_lib import *
+from de.windows import *
+from de.de_lib import *
 
 class TetrisLauncherWindow(Window):
     def events(self, event):

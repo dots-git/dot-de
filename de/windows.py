@@ -1,7 +1,7 @@
 import numpy as np
 import pygame
-from de.scripts.de_lib import *
-from de.scripts.simple_pg import *
+from de.de_lib import *
+from de.simple_pg import *
 from typing import Callable
 
 class Window(object):
@@ -122,7 +122,7 @@ class Window(object):
         '''
         image(x, y, img, self.surface)
 
-    def text(self, x: int, y: int, text_str: str, color: pygame.draw, font: str = 'Helvetica', font_size: int = 30, bold: bool = False, italic: bool = False, alignment_x: str = 'center', alignment_y: str = 'center'):
+    def text(self, x: int, y: int, text_str: str, color: pygame.draw, font: str = 'Linux Biolinum G', font_size: int = 30, bold: bool = False, italic: bool = False, alignment_x: str = 'center', alignment_y: str = 'center'):
         '''
         Draw text on the screen
 

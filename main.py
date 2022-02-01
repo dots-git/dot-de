@@ -2,9 +2,10 @@ from importlib import import_module
 import pygame
 import time
 import numpy as np
-from de.scripts.simple_pg import *
-from de.scripts.de_lib import *
-from de.scripts.windows import *
+from de.simple_pg import *
+from de.de_lib import *
+from de.windows import *
+from de.file_utils import *
 
 # Define Colors 
 WHITE = (255, 255, 255)
@@ -49,8 +50,9 @@ fps_display_update_time = win_config.fps_update_interval
 
 config.load()
 config.run_script('/demos/tetris_launcher.py')
-config.run_script('/demos/fabric_sim.py')
+# config.run_script('/demos/fabric_sim.py')
 
+t = import_module('files.demos.tetris')
 
 moved_window = None
 active_window = None
@@ -118,7 +120,38 @@ while running:
     
     # Run requested files
     for f in config.files_to_run:
-        exec(open(f).read())
+        file_content = open(f).read()
+        # Adjusting import statements to include paths from rootS
+        if file_content[0:17] == '# adjust_imports\n':
+            pointer = 17
+            imports_over = False
+            while not imports_over:
+                line = ""
+                while not file_content[pointer] == '\n':
+                    line += file_content[pointer]
+                    pointer += 1
+                try:
+                    exec(line)
+                except ImportError:
+                    file_import_path = local_file_location(f)
+                    file_import_path = file_import_path.replace('\\', '.').replace('/', '.')
+                    words = line.split(' ')
+                    for i in range(len(words)):
+                        print(words[i])
+                        if words[i] != 'import' and words[i] != 'from':
+                            if words[0] == 'import' and words[len(words)-2] != 'as':
+                                words.append('as ' + words[i])
+                            words[i] = 'files' + file_import_path + '.' + words[i]
+                            break
+                    line = "".join((words[i] + ' ') for i in range(len(words)))
+                    print(line)
+                    exec(line)
+                pointer += 1
+                if file_content[pointer:pointer+6] != 'import' and file_content[pointer:pointer+4] != 'from':
+                    imports_over = True
+            exec(file_content[pointer:len(file_content)])
+        else:
+            exec(file_content)
     config.files_to_run = []
 
     for w in Window.all:

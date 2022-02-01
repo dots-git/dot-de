@@ -1,8 +1,8 @@
-from files.demos.tetris import *
-from de.scripts.simple_pg import *
-from de.scripts.windows import *
-from files.demos.color_manager import *
-
+# adjust_imports
+from tetris import *
+from de.simple_pg import *
+from de.windows import *
+from color_manager import *
 
 class TetrisWindow(Window):
     def draw_tetris_square(self, x, y, width, color):
