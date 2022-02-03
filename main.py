@@ -1,9 +1,8 @@
-from importlib import import_module
 import pygame
 import time
 import numpy as np
+from de.os import *
 from de.simple_pg import *
-from de.de_lib import *
 from de.windows import *
 from de.file_utils import *
 
@@ -48,11 +47,9 @@ delta = win_config.min_delta
 delta_list = []
 fps_display_update_time = win_config.fps_update_interval
 
-config.load()
-config.run_script('/demos/tetris_launcher.py')
-# config.run_script('/demos/fabric_sim.py')
-
-t = import_module('files.demos.tetris')
+os.load_configs()
+os.run_script('/demos/tetris_launcher.py')
+os.run_script('/os/modules/taskbar.py')
 
 moved_window = None
 active_window = None
@@ -85,14 +82,13 @@ while running:
 
                 if Window.all[j].pos[0] < mouse_pos[0] < Window.all[j].pos[0] + Window.all[j].size[0]:
                     found = False
-                    if Window.all[j].pos[1] - header_height < mouse_pos[1] < Window.all[j].pos[1]:
+                    if Window.all[j].pos[1] - header_height < mouse_pos[1] < Window.all[j].pos[1] and Window.all[j].hasHeader:
                         moved_window = Window.all[j]
                         moving_offset[0] = Window.all[j].pos[0] - mouse_pos[0]
                         moving_offset[1] = Window.all[j].pos[1] - mouse_pos[1]
                         found = True
                         clicked_header = True
                     if Window.all[j].pos[1] - header_height < mouse_pos[1] < Window.all[j].pos[1] + Window.all[j].size[1]:
-                        print("Active window set")
                         active_window = Window.all[j]
                         for k in range(j, len(Window.all) - 1):
                             tmp = Window.all[k]
@@ -119,7 +115,7 @@ while running:
         moved_window.pos = np.array([mouse_pos[0],mouse_pos[1]]) + moving_offset
     
     # Run requested files
-    for f in config.files_to_run:
+    for f in os.files_to_run:
         file_content = open(f).read()
         # Adjusting import statements to include paths from rootS
         if file_content[0:17] == '# adjust_imports\n':
@@ -137,14 +133,12 @@ while running:
                     file_import_path = file_import_path.replace('\\', '.').replace('/', '.')
                     words = line.split(' ')
                     for i in range(len(words)):
-                        print(words[i])
                         if words[i] != 'import' and words[i] != 'from':
                             if words[0] == 'import' and words[len(words)-2] != 'as':
                                 words.append('as ' + words[i])
                             words[i] = 'files' + file_import_path + '.' + words[i]
                             break
                     line = "".join((words[i] + ' ') for i in range(len(words)))
-                    print(line)
                     exec(line)
                 pointer += 1
                 if file_content[pointer:pointer+6] != 'import' and file_content[pointer:pointer+4] != 'from':
@@ -152,16 +146,25 @@ while running:
             exec(file_content[pointer:len(file_content)])
         else:
             exec(file_content)
-    config.files_to_run = []
+    os.files_to_run = []
+
 
     for w in Window.all:
-        if w.pos[1] < w.header_height:
-            w.pos[1] = w.header_height
+        if w.pos[1] < w.header_height - w.header_offset:
+            w.pos[1] = w.header_height - w.header_offset
+        if w.move_to_front:
+            active_window = w
+            j = Window.all.index(w)
+            for k in range(j, len(Window.all) - 1):
+                tmp = Window.all[k]
+                Window.all[k] = Window.all[k + 1]
+                Window.all[k + 1] = tmp
+            w.move_to_front = False
 
     screen.fill(win_config.background_color)
 
     for w in Window.all:
-        w.fill((255, 255, 255))
+        w.fill(w.base_color)
         w.draw()
     radius = 10
     offset = 4
@@ -171,16 +174,8 @@ while running:
 
     fill((20, 20, 20))
 
-    for win in Window.all:
-        header_height = win.header_height
-
-        rounded_surface = rounded(win.surface, radius)
-
-        shadow = pygame.Surface((win.size[0] + 2*shadow_radius, win.size[1] + 2*shadow_radius))
-
-        rounded_rectangle(win.pos[0] - offset, win.pos[1] - header_height, win.size[0] + offset * 2, header_height + overlap, (30, 30, 50), radius)
-        circle(win.pos[0] + win.size[0] - button_size * 2 - 2, win.pos[1] - 2*button_size, button_size, (225, 70, 70))
-        image(win.pos[0], win.pos[1], rounded_surface)
+    for w in Window.all:
+        w.draw_window()
     pygame.display.flip()   
 
     current_time = time.time()

@@ -62,6 +62,4 @@ class TetrisWindow(Window):
             self.rectangle(10, 10, 20, 50, (180, 180, 200))
             self.rectangle(40, 10, 20, 50, (180, 180, 200))
 
-# def start(m):
-w = TetrisWindow(np.array([0, 20]), np.array([350, 650]))
-w.init()
+TetrisWindow(0, 20, 350, 650)

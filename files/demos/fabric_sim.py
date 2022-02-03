@@ -112,5 +112,4 @@ class FabricSimWindow(Window):
             pos2 = node_pos[nodes[1][0]][nodes[1][1]]
             self.line(pos1[0], pos1[1], pos2[0], pos2[1], (0, 0, 0))
 
-w = FabricSimWindow(np.array([0, 20]), np.array([600, 400]))
-w.init()
+FabricSimWindow(0, 20, 600, 400)

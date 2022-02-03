@@ -1,52 +1,118 @@
+from glob import escape
+from re import T
 import numpy as np
 import pygame
-from de.de_lib import *
+from de.os import *
 from de.simple_pg import *
-from typing import Callable
 
 class Window(object):
     all: 'list[Window]' = []
 
-    def __init__(self, pos: np.ndarray = None, size: np.ndarray = None): 
+    def __init__(self, x = 0, y = 0, w = 0, h = 0, hasHeader = True, resizable = False, base_color = WHITE, draw_by_default = True): 
         Window.all.append(self)
-        if pos is None:
-            pos = np.array([0, 0], dtype=np.int32)
-        if size is None:
-            size = np.array([0, 0], dtype=np.int32)
-        self.pos: np.ndarray = pos
-        self.size: np.ndarray = size
+        
+        self.hasHeader: bool = hasHeader
+        self.pos: np.ndarray = np.asarray([x, y])
+        self.size: np.ndarray = np.asarray([w, h])
         self.surface: pygame.Surface = pygame.Surface(self.size, pygame.SRCALPHA)
-        self.header_height = config.configs['Window']['Header']['Default_Size']
-    
+        self.resizable: bool = resizable
+        self.base_color = base_color
+        self.draw_by_default: bool = draw_by_default
+
+        self.move_to_front = True
+        self.init()
+
+
+        configs: dict[ConfValue] = os.configs['Window']['Header']
+        self.header_height: int = configs['Height'].get() if self.hasHeader else 0
+        if self.hasHeader:
+            header_width: int = configs['Width'].get()
+            header_height: int = self.header_height
+            header_offset: int = configs['Vertical offset'].get()
+            header_color: pygame.Color = configs['Color'].get()
+            self.header = Header(
+                self.x() - header_width / 2, 
+                self.y() - header_height + header_offset, 
+                self.width() + header_width, 
+                header_height, 
+                False,
+                base_color = header_color, 
+                draw_by_default = False
+            )
+
+        window_radius = os.configs['Window']['Corner radius'].get()
+
+    def update_header(self):
+        configs: dict[ConfValue] = os.configs['Window']['Header']
+        if self.hasHeader:
+            header_width: int = configs['Width'].get()
+            header_height: int = self.header_height
+            header_offset: int = configs['Vertical offset'].get()
+            self.header.set_pos(
+                self.x() - header_width / 2, 
+                self.y() - header_height + header_offset
+            )
+            self.header.set_size(
+                self.width() + header_width, 
+                header_height
+            )
+
     def quit(self):
         Window.all.remove(self)
 
-    def set_size(self, size: np.ndarray):
-        self.size = size
+    def set_size(self, x, y):
+        self.size = np.asarray([x, y])
         self.surface = pygame.Surface(self.size, pygame.SRCALPHA)
+    
+    def set_pos(self, x, y):
+        self.pos = np.asarray([x, y])
     
     def mouse_pos(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
         return (mouse_x - self.pos[0], mouse_y - self.pos[1])
 
+    def draw_window(self):
+        if self.hasHeader:
+            self.header.draw_window()           
+        rounded_surface = rounded(self.surface, self.window_radius)
+        image(self.pos[0], self.pos[1], rounded_surface)
+
     # A bunch of functions to make drawing on the window easier, most just use the functions from simple_pg
-    def size(self):
+    def screen_size(self):
         ''' 
-        Returns a tuple of the width and height of the window 
+        Returns a tuple of the width and height of the screen 
         '''
-        return size(self.surface)
+        return size()
     
+    def screen_width(self):
+        '''
+        Returns the width of the screen        
+        '''
+        return width()
+    
+    def screen_height(self):
+        '''
+        Returns the height of the screen
+        '''
+        return height()
+    
+    def x(self):
+        return self.pos[0]
+    
+    def y(self): 
+        return self.pos[1]
+
     def width(self):
         ''' 
         Returns the width of the window 
         '''
-        return width(self.surface)
+        return self.size[0]
     
     def height(self):
         ''' 
         Returns the height of the window 
         '''
-        return height(self.surface)
+        return self.size[1]
     
     def circle(self, x: 'int | float', y: 'int | float', r: 'int | float', color, filled: bool = True):
         ''' 
@@ -157,5 +223,9 @@ class Window(object):
     def tick(self, delta):
         pass
 
+    def draw(self):
+        pass
+
+class Header(Window):
     def draw(self):
         pass

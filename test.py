@@ -1,22 +1,14 @@
-import numpy as np
+from multiprocessing.spawn import import_main_path
+from de.file_utils import *
+from files.os.modules.parse_sc import *
+import pygame
 
-# def approx_offset(a: np.ndarray):
-#     n = 4
-#     offset_array = np.zeros(a.shape)
-#     zeros = np.zeros((n))
-#     coefficients = np.zeros((n))
-#     for i in range(n):
-#         zeros[i] = np.sqrt(1 / (10**(-0.5*i)))
-#         coefficients[i] = 0.5 * a * zeros[i]
-#     for i in range(n):
-#         offset_array += 
+shortcuts = []
 
-def offset(shape, d) -> np.ndarray:
-    b = -1/(d**3)
-    a = np.zeros(shape)
-    x = np.mgrid[0:d, 0:shape[1]][0]
-    a[:d] += b * np.power((x - d), 3)
-    return a
-    
-
-print(offset((5, 3), 4).transpose())
+f = child_files(files_root() + '/os/taskbar_shortcuts')
+for i in range(len(f)):
+    if f[i].endswith('.sc'):
+        shortcuts.append(sc_to_dict(files_root() + '/os/taskbar_shortcuts/' + f[i]))
+        # shortcuts[i]['icon'] = pygame.image.load(files_root() + shortcuts[i]['icon'][0])
+        print(shortcuts[i]['icon'])
+        shortcuts[i]['icon'] = pygame.transform.scale(shortcuts[i]['icon'], (1 * 0.8, 1 * 0.8))

@@ -1,7 +1,6 @@
 import pygame
 from pygame import gfxdraw
 import time
-import math
 import numpy as np
 
 def size(surface: pygame.Surface = None):
