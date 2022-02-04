@@ -150,8 +150,8 @@ while running:
 
 
     for w in Window.all:
-        if w.pos[1] < w.header_height - w.header_offset:
-            w.pos[1] = w.header_height - w.header_offset
+        if w.pos[1] < w.header_height:
+            w.pos[1] = w.header_height
         if w.move_to_front:
             active_window = w
             j = Window.all.index(w)
@@ -175,7 +175,8 @@ while running:
     fill((20, 20, 20))
 
     for w in Window.all:
-        w.draw_window()
+        if w.draw_by_default:
+            w.draw_window()
     pygame.display.flip()   
 
     current_time = time.time()

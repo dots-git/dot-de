@@ -24,23 +24,24 @@ class Window(object):
 
 
         configs: dict[ConfValue] = os.configs['Window']['Header']
-        self.header_height: int = configs['Height'].get() if self.hasHeader else 0
         if self.hasHeader:
             header_width: int = configs['Width'].get()
-            header_height: int = self.header_height
+            header_height: int = configs['Height'].get()
             header_offset: int = configs['Vertical offset'].get()
             header_color: pygame.Color = configs['Color'].get()
             self.header = Header(
                 self.x() - header_width / 2, 
                 self.y() - header_height + header_offset, 
                 self.width() + header_width, 
-                header_height, 
+                header_height,
                 False,
                 base_color = header_color, 
                 draw_by_default = False
             )
-
-        window_radius = os.configs['Window']['Corner radius'].get()
+            self.header_height = header_height - header_offset
+        else:
+            self.header_height = 0
+        self.window_radius = os.configs['Window']['Corner radius'].get()
 
     def update_header(self):
         configs: dict[ConfValue] = os.configs['Window']['Header']
@@ -73,6 +74,7 @@ class Window(object):
 
     def draw_window(self):
         if self.hasHeader:
+            self.update_header()
             self.header.draw_window()           
         rounded_surface = rounded(self.surface, self.window_radius)
         image(self.pos[0], self.pos[1], rounded_surface)
