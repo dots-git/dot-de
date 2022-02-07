@@ -11,8 +11,8 @@ class os:
     def save_config():
         pickle.dump(os.configs, open(working_dir() + '/config/config', 'wb'))
 
-    def run_script(path):
-        os.files_to_run.append(files_root() + path)
+    def run_script(path, x = 0, y = 0, w = 0, h = 0):
+        os.files_to_run.append((files_root() + path, x, y, w, h))
 
     def print_full_configs():
         print_dict(os.configs)

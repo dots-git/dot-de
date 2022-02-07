@@ -48,7 +48,6 @@ delta_list = []
 fps_display_update_time = win_config.fps_update_interval
 
 os.load_configs()
-os.run_script('/demos/tetris_launcher.py')
 os.run_script('/os/modules/taskbar.py')
 
 moved_window = None
@@ -80,15 +79,16 @@ while running:
                 
                 header_height = Window.all[j].header_height
 
-                if Window.all[j].pos[0] < mouse_pos[0] < Window.all[j].pos[0] + Window.all[j].size[0]:
+                if Window.all[j].x() < mouse_pos[0] < Window.all[j].x() + Window.all[j].width():
                     found = False
-                    if Window.all[j].pos[1] - header_height < mouse_pos[1] < Window.all[j].pos[1] and Window.all[j].hasHeader:
+                    if Window.all[j].y() - header_height < mouse_pos[1] < Window.all[j].y() and Window.all[j].has_header:
                         moved_window = Window.all[j]
-                        moving_offset[0] = Window.all[j].pos[0] - mouse_pos[0]
-                        moving_offset[1] = Window.all[j].pos[1] - mouse_pos[1]
+                        moving_offset[0] = Window.all[j].x() - mouse_pos[0]
+                        moving_offset[1] = Window.all[j].y() - mouse_pos[1]
                         found = True
                         clicked_header = True
-                    if Window.all[j].pos[1] - header_height < mouse_pos[1] < Window.all[j].pos[1] + Window.all[j].size[1]:
+                        print("Header was clicked")
+                    if Window.all[j].y() - header_height < mouse_pos[1] < Window.all[j].y() + Window.all[j].height():
                         active_window = Window.all[j]
                         for k in range(j, len(Window.all) - 1):
                             tmp = Window.all[k]
@@ -109,13 +109,14 @@ while running:
         active_window = None
 
     for w in Window.all:
+        w.window_tick(delta)
         w.tick(delta)
     mouse_pos = pygame.mouse.get_pos()
     if not (moved_window is None):
-        moved_window.pos = np.array([mouse_pos[0],mouse_pos[1]]) + moving_offset
+        moved_window.set_pos(mouse_pos[0] + moving_offset[0], mouse_pos[1] + moving_offset[1])
     
     # Run requested files
-    for f in os.files_to_run:
+    for f, x, y, win_width, win_height in os.files_to_run:
         file_content = open(f).read()
         # Adjusting import statements to include paths from rootS
         if file_content[0:17] == '# adjust_imports\n':
@@ -146,12 +147,17 @@ while running:
             exec(file_content[pointer:len(file_content)])
         else:
             exec(file_content)
+        if Window.types_to_open != []:
+            for win in Window.types_to_open:
+                print("Opening window at %f, %f, %f, %f" % (x, y, win_width, win_height))
+                win(x, y, win_width, win_height)
+            Window.types_to_open = []
     os.files_to_run = []
 
 
     for w in Window.all:
-        if w.pos[1] < w.header_height:
-            w.pos[1] = w.header_height
+        if w.y() < w.header_height - w.header_offset:
+            w.y(w.header_height - w.header_offset, True)
         if w.move_to_front:
             active_window = w
             j = Window.all.index(w)
@@ -175,8 +181,7 @@ while running:
     fill((20, 20, 20))
 
     for w in Window.all:
-        if w.draw_by_default:
-            w.draw_window()
+        w.draw_window()
     pygame.display.flip()   
 
     current_time = time.time()

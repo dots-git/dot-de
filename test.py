@@ -1,14 +1,51 @@
-from multiprocessing.spawn import import_main_path
-from de.file_utils import *
-from files.os.modules.parse_sc import *
-import pygame
+from de.animated_rect import *
+from de.simple_pg import *
 
-shortcuts = []
+def init():
+    global my_rect, draw_starting_point, drawing, radius
 
-f = child_files(files_root() + '/os/taskbar_shortcuts')
-for i in range(len(f)):
-    if f[i].endswith('.sc'):
-        shortcuts.append(sc_to_dict(files_root() + '/os/taskbar_shortcuts/' + f[i]))
-        # shortcuts[i]['icon'] = pygame.image.load(files_root() + shortcuts[i]['icon'][0])
-        print(shortcuts[i]['icon'])
-        shortcuts[i]['icon'] = pygame.transform.scale(shortcuts[i]['icon'], (1 * 0.8, 1 * 0.8))
+    my_rect = AnimatedRect(0, 0, width(), height(), 10, 1000, 4)
+
+    my_rect.set_y(100)
+    my_rect.set_x(0)
+    my_rect.set_width(150)
+    my_rect.set_height(40)
+
+    draw_starting_point = (0, 0)
+    drawing = False
+    radius = 0
+
+def events(event):
+    global draw_starting_point, drawing
+
+    if event.type == pygame.MOUSEBUTTONDOWN:
+        drawing = True
+        draw_starting_point = pygame.mouse.get_pos()
+    if event.type == pygame.MOUSEBUTTONUP:
+        drawing = False
+        draw_ending_point = pygame.mouse.get_pos()
+        top = min(draw_starting_point[1], draw_ending_point[1])
+        bottom = max(draw_starting_point[1], draw_ending_point[1])
+        left = min(draw_starting_point[0], draw_ending_point[0])
+        right = max(draw_starting_point[0], draw_ending_point[0])
+        my_rect.set_pos(left, top)
+        my_rect.set_width(right - left)
+        my_rect.set_height(bottom - top)
+
+def tick(delta):
+    my_rect.animate(delta)    
+
+def draw():
+    if not drawing:
+        rounded_rectangle(int(my_rect.target_vector[0]), int(my_rect.target_vector[1]), int(my_rect.target_vector[2]), int(my_rect.target_vector[3]), (180, 180, 180), radius)
+
+    rounded_rectangle(my_rect.get_x(), my_rect.get_y(), my_rect.get_width(), my_rect.get_height(), (0, 0, 0), radius)
+    if drawing:
+        draw_ending_point = pygame.mouse.get_pos()
+        top = min(draw_starting_point[1], draw_ending_point[1])
+        bottom = max(draw_starting_point[1], draw_ending_point[1])
+        left = min(draw_starting_point[0], draw_ending_point[0])
+        right = max(draw_starting_point[0], draw_ending_point[0])
+        rounded_rectangle(left, top, right - left, bottom - top, (180, 180, 180), radius)
+
+go(init, events, tick, draw)

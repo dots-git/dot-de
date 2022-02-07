@@ -10,7 +10,7 @@ class FabricSimWindow(Window):
 
         moved_node = (-1, -1)
         link_length = 50
-        stiffness = 10
+        stiffness = 10000
         damping = 0.5
         node_size = 10
 
@@ -31,12 +31,15 @@ class FabricSimWindow(Window):
                     #     links.append(((x, y), (x + -1, y + 1)))
                 if y > 0:
                     links.append(((x, y), (x, y - 1)))
+        
+        self.set_pos(0, 20, True)
+        self.set_size(600, 400, True)
 
     def events(self, event: pygame.event.Event):
         global node_pos, node_vel, links, size_x, size_y, link_length, stiffness, damping, moved_node, node_size
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_pos = np.array(pygame.mouse.get_pos()) - self.pos
+            mouse_pos = self.mouse_pos()
             closest_node_distance = math.inf
             for x in range(len(node_pos)):
                 for y in range(len(node_pos[x])):
@@ -79,7 +82,7 @@ class FabricSimWindow(Window):
 
 
             if moved_node != (-1, -1):
-                mouse_pos = np.array(pygame.mouse.get_pos()) - self.pos
+                mouse_pos = self.mouse_pos()
                 node_pos[int(moved_node[0])][int(moved_node[1])][0] = mouse_pos[0]
                 node_pos[int(moved_node[0])][int(moved_node[1])][1] = mouse_pos[1]
                 node_vel[int(moved_node[0])][int(moved_node[1])][0] = 0
@@ -112,4 +115,4 @@ class FabricSimWindow(Window):
             pos2 = node_pos[nodes[1][0]][nodes[1][1]]
             self.line(pos1[0], pos1[1], pos2[0], pos2[1], (0, 0, 0))
 
-FabricSimWindow(0, 20, 600, 400)
+Window.open(FabricSimWindow)

@@ -20,6 +20,8 @@ class TetrisWindow(Window):
         self.time_until_drop = self.drop_speed
         self.drop_accelerator = 1
         self.paused = False
+        self.set_pos(500, 20, True)
+        self.set_size(350, 650, True)
 
     def events(self, event: pygame.event.Event):
         if not self.paused:
@@ -62,4 +64,4 @@ class TetrisWindow(Window):
             self.rectangle(10, 10, 20, 50, (180, 180, 200))
             self.rectangle(40, 10, 20, 50, (180, 180, 200))
 
-TetrisWindow(0, 20, 350, 650)
+Window.open(TetrisWindow)
