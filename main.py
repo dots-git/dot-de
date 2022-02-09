@@ -6,7 +6,7 @@ from de.simple_pg import *
 from de.windows import *
 from de.file_utils import *
 
-# Define Colors 
+# Define Colors  
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
