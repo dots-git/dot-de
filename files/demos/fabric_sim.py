@@ -10,7 +10,7 @@ class FabricSimWindow(Window):
 
         moved_node = (-1, -1)
         link_length = 50
-        stiffness = 10000
+        stiffness = 10
         damping = 0.5
         node_size = 10
 

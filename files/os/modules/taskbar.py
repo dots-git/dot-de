@@ -25,8 +25,8 @@ class TaskbarWindow(Window):
                 self.shortcuts[i]['icon'] = pygame.transform.smoothscale(self.shortcuts[i]['icon'], (self.taskbar_height * (1 - 2 * self.icon_padding), self.taskbar_height * (1 - 2 * self.icon_padding)))
 
     def tick(self, delta):
-        self.set_size(width(), self.taskbar_height)
-        self.set_pos(0, height() - self.taskbar_height)
+        self.set_size(width(), self.taskbar_height, True)
+        self.set_pos(0, height() - self.taskbar_height, True)
     
     def events(self, event: pygame.event.Event):
         if event.type == pygame.MOUSEBUTTONDOWN:

@@ -4,13 +4,13 @@ from de.simple_pg import *
 def init():
     global my_rect, draw_starting_point, drawing, radius
 
-    my_rect = AnimatedRect(0, 0, width(), height(), 10, 1000, 4)
+    my_rect = AnimatedRect(0, 0, width(), height(), 10, 1000, 7, 0)
 
     my_rect.set_y(100)
     my_rect.set_x(0)
     my_rect.set_width(150)
     my_rect.set_height(40)
-
+    
     draw_starting_point = (0, 0)
     drawing = False
     radius = 0
@@ -33,7 +33,9 @@ def events(event):
         my_rect.set_height(bottom - top)
 
 def tick(delta):
-    my_rect.animate(delta)    
+    my_rect.animate(delta)  
+    mouse_x, mouse_y = pygame.mouse.get_pos()  
+    my_rect.set_pos(mouse_x, mouse_y)
 
 def draw():
     if not drawing:

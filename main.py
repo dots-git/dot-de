@@ -48,7 +48,7 @@ delta_list = []
 fps_display_update_time = win_config.fps_update_interval
 
 os.load_configs()
-os.run_script('/os/modules/taskbar.py')
+os.run_script('/os/modules/taskbar.py', width() / 2, height(), 0, 0)
 
 moved_window = None
 active_window = None

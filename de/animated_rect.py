@@ -4,7 +4,7 @@ from de.utils import *
 import pygame
 
 class AnimatedRect:
-    def __init__(self, x, y, width, height, acceleration, acceleration_modifier, drag):
+    def __init__(self, x, y, width, height, acceleration, acceleration_modifier, drag, directional_smoothing = 0):
         self.current_vector = np.array([x, y, width, height], dtype=np.float32)
         self.target_vector = self.current_vector.copy()
         self.velocity_vector = np.zeros(self.current_vector.shape, dtype=np.float32)
@@ -12,8 +12,21 @@ class AnimatedRect:
         self.acceleration = acceleration
         self.acceleration_modifier = acceleration_modifier
         self.drag = 10**(-drag)
+        self.directional_smoothing = directional_smoothing
         if self.drag == 0:
             self.drag = 10e-255
+
+    def set_acceleration(self, acceleration):
+        self.acceleration = acceleration
+    
+    def set_acceleration_modifier(self, acceleration_modifier):
+        self.acceleration_modifier = acceleration_modifier
+    
+    def set_drag(self, drag):
+        self.drag = 10**(-drag)
+    
+    def set_directional_smoothing(self, directional_smoothing):
+        self.directional_smoothing = directional_smoothing
 
     def animate(self, delta):       
         difference_vector: np.ndarray = self.target_vector - self.current_vector
@@ -22,8 +35,9 @@ class AnimatedRect:
 
         velocity = circular_exponential(0, velocity, distance, self.acceleration, self.acceleration_modifier, self.drag, delta)
 
+        a = (1 - self.directional_smoothing) **delta
         if distance > 0:
-            direction = difference_vector / distance
+            direction = difference_vector / distance + self.velocity_vector / velocity * (1 - a)
         else:
             direction = np.zeros((4, ))
         self.velocity_vector = direction * velocity
